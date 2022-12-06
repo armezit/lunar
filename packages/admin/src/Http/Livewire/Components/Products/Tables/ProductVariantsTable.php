@@ -58,6 +58,11 @@ class ProductVariantsTable extends Table
                 return $record->values->map(function ($value) {
                     return $value->translate('name');
                 })->join(' / ');
+            })->url(function ($record) {
+                return route('hub.products.variants.show', [
+                    'product' => $this->product,
+                    'variant' => $record,
+                ]);
             }),
 
             TextColumn::make('price', function ($record) {
