@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Validator;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Lunar\Hub\Http\Livewire\Traits\CanExtendValidation;
 use Lunar\Hub\Http\Livewire\Traits\HasAvailability;
 use Lunar\Hub\Http\Livewire\Traits\HasImages;
 use Lunar\Hub\Http\Livewire\Traits\HasUrls;
@@ -29,6 +30,7 @@ class CollectionShow extends Component
     use WithFileUploads;
     use HasUrls;
     use WithLanguages;
+    use CanExtendValidation;
 
     /**
      * The collection we are currently editing.
@@ -134,7 +136,10 @@ class CollectionShow extends Component
             ],
             $this->withAttributesValidationRules(),
             $this->hasImagesValidationRules(),
-            $this->hasUrlsValidationRules()
+            $this->hasUrlsValidationRules(),
+            $this->getExtendedValidationRules([
+                'collection' => $this->collection,
+            ]),
         );
     }
 
@@ -354,7 +359,8 @@ class CollectionShow extends Component
     {
         return array_merge(
             [],
-            $this->withAttributesValidationMessages()
+            $this->withAttributesValidationMessages(),
+            $this->getExtendedValidationMessages(),
         );
     }
 
