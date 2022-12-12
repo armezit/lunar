@@ -126,6 +126,7 @@ module.exports = {
           '/extending/shipping',
           '/extending/tables',
           '/extending/taxation',
+          '/extending/validations',
         ]
       }
     ],
