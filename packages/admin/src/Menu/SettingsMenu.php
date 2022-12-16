@@ -129,6 +129,14 @@ class SettingsMenu
         });
 
         $adminSection->addItem(function (MenuLink $item) {
+            $item->name('Background Jobs')
+                ->handle('hub.background-jobs')
+                ->route('hub.background-jobs.index')
+                ->gate('settings')
+                ->icon('queue-list');
+        });
+
+        $adminSection->addItem(function (MenuLink $item) {
             $item->name('Addons')
                  ->handle('hub.addons')
                  ->route('hub.addons.index')

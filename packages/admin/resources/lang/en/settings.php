@@ -136,6 +136,11 @@ return [
     'product.options.index.create_btn' => 'Create Option',
     'product.options.index.table_row_action_text' => 'Edit Option',
     /**
+     * Background jobs page.
+     */
+    'background_jobs.index.title' => 'Background Jobs',
+
+    /**
      * Taxes.
      */
     'taxes.tax-zones.index.title' => 'Tax Zones',
