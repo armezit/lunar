@@ -2,7 +2,6 @@
 
 namespace Lunar\Hub\Http\Livewire\Components\Products;
 
-use Lunar\Hub\Http\Livewire\Traits\CanExtendValidation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
