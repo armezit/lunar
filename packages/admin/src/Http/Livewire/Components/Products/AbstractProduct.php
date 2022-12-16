@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Validator;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Lunar\Hub\Http\Livewire\Traits\CanExtendValidation;
 use Lunar\Hub\Http\Livewire\Traits\HasAvailability;
 use Lunar\Hub\Http\Livewire\Traits\HasDimensions;
 use Lunar\Hub\Http\Livewire\Traits\HasImages;
@@ -374,7 +375,6 @@ abstract class AbstractProduct extends Component
         })->validate(null, $this->getValidationMessages());
 
         $this->validateUrls();
-
         $isNew = ! $this->product->id;
 
         DB::transaction(function () use ($isNew) {
