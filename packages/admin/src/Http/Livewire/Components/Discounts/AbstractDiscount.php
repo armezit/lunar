@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Validator;
 use Livewire\Component;
 use Lunar\Facades\Discounts;
+use Lunar\Hub\Base\DiscountTypesInterface;
 use Lunar\Hub\Editing\DiscountTypes;
 use Lunar\Hub\Http\Livewire\Traits\HasAvailability;
 use Lunar\Hub\Http\Livewire\Traits\Notifies;
@@ -184,7 +185,7 @@ abstract class AbstractDiscount extends Component
      */
     public function getDiscountComponent()
     {
-        return (new DiscountTypes)->getComponent($this->discount->type);
+        return app(DiscountTypesInterface::class)->getComponent($this->discount->type);
     }
 
     /**
@@ -341,6 +342,7 @@ abstract class AbstractDiscount extends Component
 
         DB::transaction(function () {
             $this->discount->max_uses = $this->discount->max_uses ?: null;
+            $this->discount->max_uses_per_user = $this->discount->max_uses_per_user ?: null;
             $this->discount->save();
 
             $this->discount->brands()->sync(
@@ -431,6 +433,7 @@ abstract class AbstractDiscount extends Component
                 'has_errors' => $this->errorBag->hasAny([
                     'minPrices.*.price',
                     'discount.max_uses',
+                    'discount.max_uses_per_user',
                 ]),
             ],
             [

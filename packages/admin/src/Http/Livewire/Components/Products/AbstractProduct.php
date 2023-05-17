@@ -255,7 +255,7 @@ abstract class AbstractProduct extends Component
                 $baseRules,
                 $this->hasPriceValidationRules(),
                 [
-                    'variant.stock' => 'numeric|max:10000000',
+                    'variant.stock' => 'required|min:0|numeric|max:10000000',
                     'variant.backorder' => 'numeric|max:10000000',
                     'variant.purchasable' => 'string|required',
                     'variant.length_value' => 'numeric|nullable',
@@ -694,6 +694,10 @@ abstract class AbstractProduct extends Component
         $this->associations = $this->product->associations
             ->merge($this->product->inverseAssociations)
             ->map(function ($assoc) {
+                if (! $assoc->target) {
+                    return;
+                }
+
                 $inverse = $assoc->target->id == $this->product->id;
 
                 $product = $inverse ? $assoc->parent : $assoc->target;
@@ -706,7 +710,8 @@ abstract class AbstractProduct extends Component
                     'name' => $product->translateAttribute('name'),
                     'type' => $assoc->type,
                 ];
-            });
+            })
+            ->filter();
     }
 
     /**
