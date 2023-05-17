@@ -188,7 +188,7 @@ abstract class AbstractProduct extends Component
                 'productOptionCreated' => 'resetOptionView',
                 'option-manager.selectedValues' => 'setOptionValues',
                 'urlSaved' => 'refreshUrls',
-                'product-search.selected' => 'updateAssociations',
+                'productSearch.selected' => 'updateAssociations',
                 'collectionSearch.selected' => 'selectCollections',
                 'productOptionSelectorPanelToggled' => 'setVariantsEnabled',
             ],
@@ -255,7 +255,7 @@ abstract class AbstractProduct extends Component
                 $baseRules,
                 $this->hasPriceValidationRules(),
                 [
-                    'variant.stock' => 'numeric|max:10000000',
+                    'variant.stock' => 'required|min:0|numeric|max:10000000',
                     'variant.backorder' => 'numeric|max:10000000',
                     'variant.purchasable' => 'string|required',
                     'variant.length_value' => 'numeric|nullable',
@@ -394,11 +394,11 @@ abstract class AbstractProduct extends Component
             $this->product->save();
 
             if (($this->getVariantsCount() <= 1) || $isNew) {
-                if (!$this->variant->product_id) {
+                if (! $this->variant->product_id) {
                     $this->variant->product_id = $this->product->id;
                 }
 
-                if (!$this->manualVolume) {
+                if (! $this->manualVolume) {
                     $this->variant->volume_unit = null;
                     $this->variant->volume_value = null;
                 }
@@ -413,7 +413,7 @@ abstract class AbstractProduct extends Component
             }
 
             // We generating variants?
-            $generateVariants = (bool) count($this->optionValues) && !$this->variantsDisabled;
+            $generateVariants = (bool) count($this->optionValues) && ! $this->variantsDisabled;
 
             if (! $this->variantsEnabled && $this->getVariantsCount()) {
                 $variantToKeep = $this->product->variants()->first();
@@ -434,7 +434,7 @@ abstract class AbstractProduct extends Component
                 GenerateVariants::dispatch($this->product, $this->optionValues);
             }
 
-            if (!$generateVariants && $this->product->variants->count() <= 1 && !$isNew) {
+            if (! $generateVariants && $this->product->variants->count() <= 1 && ! $isNew) {
                 // Only save pricing if we're not generating new variants.
                 $this->savePricing();
             }
@@ -478,7 +478,7 @@ abstract class AbstractProduct extends Component
             }
 
             $this->associations->each(function ($assoc) {
-                if (!empty($assoc['id'])) {
+                if (! empty($assoc['id'])) {
                     ProductAssociation::find($assoc['id'])->update([
                         'type' => $assoc['type'],
                     ]);
@@ -605,7 +605,7 @@ abstract class AbstractProduct extends Component
                 if ($pivot) {
                     if ($pivot->purchasable) {
                         $status = 'purchasable';
-                    } elseif (!$pivot->visible && !$pivot->enabled) {
+                    } elseif (! $pivot->visible && ! $pivot->enabled) {
                         $status = 'hidden';
                     } elseif ($pivot->visible) {
                         $status = 'visible';
@@ -694,6 +694,10 @@ abstract class AbstractProduct extends Component
         $this->associations = $this->product->associations
             ->merge($this->product->inverseAssociations)
             ->map(function ($assoc) {
+                if (! $assoc->target) {
+                    return;
+                }
+
                 $inverse = $assoc->target->id == $this->product->id;
 
                 $product = $inverse ? $assoc->parent : $assoc->target;
@@ -706,7 +710,8 @@ abstract class AbstractProduct extends Component
                     'name' => $product->translateAttribute('name'),
                     'type' => $assoc->type,
                 ];
-            });
+            })
+            ->filter();
     }
 
     /**
@@ -873,17 +878,11 @@ abstract class AbstractProduct extends Component
                 ]),
             ],
             [
-                'title'      => __('adminhub::menu.product.availability'),
-                'id'         => 'availability',
+                'title' => __('adminhub::menu.product.availability'),
+                'id' => 'availability',
                 'has_errors' => $this->errorBag->hasAny([
-                    'availability.*',
+                    'availability',
                 ]),
-            ],
-            [
-                'title'      => __('adminhub::menu.product.variants'),
-                'id'         => 'variants',
-                'hidden'     => $this->variantsDisabled,
-                'has_errors' => $this->errorBag->hasAny([]),
             ],
             [
                 'title' => __('adminhub::menu.product.variants'),
@@ -918,13 +917,29 @@ abstract class AbstractProduct extends Component
                 'id' => 'inventory',
                 'error_check' => [],
                 'hidden' => $this->getVariantsCount() > 1,
-                'has_errors' => $this->errorBag->hasAny([]),
+                'has_errors' => $this->errorBag->hasAny([
+                    'variant.stock',
+                    'variant.backorder',
+                    'variant.purchasable',
+                ]),
             ],
             [
                 'title' => __('adminhub::menu.product.shipping'),
                 'id' => 'shipping',
                 'hidden' => $this->getVariantsCount() > 1,
-                'has_errors' => $this->errorBag->hasAny([]),
+                'has_errors' => $this->errorBag->hasAny([
+                    'variant.shippable',
+                    'variant.length_value',
+                    'variant.length_unit',
+                    'variant.width_value',
+                    'variant.width_unit',
+                    'variant.height_value',
+                    'variant.height_unit',
+                    'variant.weight_value',
+                    'variant.weight_unit',
+                    'variant.volume_value',
+                    'variant.volume_unit',
+                ]),
             ],
             [
                 'title' => __('adminhub::menu.product.urls'),
@@ -938,7 +953,9 @@ abstract class AbstractProduct extends Component
                 'title' => __('adminhub::menu.product.associations'),
                 'id' => 'associations',
                 'hidden' => false,
-                'has_errors' => $this->errorBag->hasAny([]),
+                'has_errors' => $this->errorBag->hasAny([
+                    'associations',
+                ]),
             ],
             [
                 'title' => __('adminhub::menu.product.collections'),
@@ -946,7 +963,6 @@ abstract class AbstractProduct extends Component
                 'hidden' => false,
                 'has_errors' => $this->errorBag->hasAny([
                     'collections',
-                    'collections.*'
                 ]),
             ],
         ])->reject(fn ($item) => ($item['hidden'] ?? false));

@@ -7,8 +7,8 @@ use InvalidArgumentException;
 use Lunar\Base\DataTransferObjects\CartDiscount;
 use Lunar\Base\DiscountManagerInterface;
 use Lunar\Base\Validation\CouponValidator;
+use Lunar\DiscountTypes\AmountOff;
 use Lunar\DiscountTypes\BuyXGetY;
-use Lunar\DiscountTypes\Discount as TypesDiscount;
 use Lunar\Models\Cart;
 use Lunar\Models\Channel;
 use Lunar\Models\CustomerGroup;
@@ -43,7 +43,7 @@ class DiscountManager implements DiscountManagerInterface
      * @var array
      */
     protected $types = [
-        TypesDiscount::class,
+        AmountOff::class,
         BuyXGetY::class,
     ];
 
@@ -80,8 +80,7 @@ class DiscountManager implements DiscountManagerInterface
             throw new InvalidArgumentException(
                 __('lunar::exceptions.discounts.invalid_type', [
                     'expected' => Channel::class,
-                    'actual' => get_class($nonChannel),
-
+                    'actual' => $nonChannel->getMorphClass(),
                 ])
             );
         }
@@ -107,7 +106,7 @@ class DiscountManager implements DiscountManagerInterface
             throw new InvalidArgumentException(
                 __('lunar::exceptions.discounts.invalid_type', [
                     'expected' => CustomerGroup::class,
-                    'actual' => get_class($nonGroup),
+                    'actual' => $nonGroup->getMorphClass(),
                 ])
             );
         }
@@ -157,16 +156,19 @@ class DiscountManager implements DiscountManagerInterface
             $joinTable = (new Discount)->customerGroups()->getTable();
 
             $query->whereIn("{$joinTable}.customer_group_id", $this->customerGroups->pluck('id'))
-            ->where("{$joinTable}.enabled", true)
-            ->where(function ($query) use ($joinTable) {
-                $query->whereNull("{$joinTable}.starts_at")
-                    ->orWhere("{$joinTable}.starts_at", '<=', now());
-            })
-            ->where(function ($query) use ($joinTable) {
-                $query->whereNull("{$joinTable}.ends_at")
-                    ->orWhere("{$joinTable}.ends_at", '>', now());
-            });
-        })->orderBy('priority')->get();
+                ->where("{$joinTable}.enabled", true)
+                ->where(function ($query) use ($joinTable) {
+                    $query->whereNull("{$joinTable}.starts_at")
+                        ->orWhere("{$joinTable}.starts_at", '<=', now());
+                })
+                ->where(function ($query) use ($joinTable) {
+                    $query->whereNull("{$joinTable}.ends_at")
+                        ->orWhere("{$joinTable}.ends_at", '>', now());
+                });
+        })
+            ->orderBy('priority', 'desc')
+            ->orderBy('id')
+            ->get();
     }
 
     /**

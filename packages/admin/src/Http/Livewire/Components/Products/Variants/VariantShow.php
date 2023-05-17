@@ -7,8 +7,10 @@ use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
+use Lunar\Hub\Http\Livewire\Traits\CanExtendValidation;
 use Lunar\Hub\Http\Livewire\Traits\HasDimensions;
 use Lunar\Hub\Http\Livewire\Traits\HasImages;
+use Livewire\FileUploadConfiguration;
 use Lunar\Hub\Http\Livewire\Traits\HasPrices;
 use Lunar\Hub\Http\Livewire\Traits\HasSlots;
 use Lunar\Hub\Http\Livewire\Traits\Notifies;
@@ -33,6 +35,7 @@ class VariantShow extends Component
     use HasDimensions;
     use HasSlots;
     use HasImages;
+    use CanExtendValidation;
 
     /**
      * Instance of the parent product.
@@ -98,6 +101,7 @@ class VariantShow extends Component
     {
         return array_merge(
             [
+                'updatedAttributes',
                 'option-value-create-modal.value-created' => 'refreshAndSelectOption',
             ],
             $this->getHasSlotsListeners(),
@@ -140,42 +144,49 @@ class VariantShow extends Component
      */
     protected function rules()
     {
-        return array_merge([
-            'newValues' => 'array',
-            'variant.stock' => 'numeric|max:10000000',
-            'variant.tax_class_id' => 'required',
-            'variant.length_value' => 'numeric|nullable',
-            'variant.length_unit' => 'string|nullable',
-            'variant.width_value' => 'numeric|nullable',
-            'variant.width_unit' => 'string|nullable',
-            'variant.height_value' => 'numeric|nullable',
-            'variant.height_unit' => 'string|nullable',
-            'variant.weight_value' => 'numeric|nullable',
-            'variant.weight_unit' => 'string|nullable',
-            'variant.volume_value' => 'numeric|nullable',
-            'variant.volume_unit' => 'string|nullable',
-            'variant.shippable' => 'boolean|nullable',
-            'variant.backorder' => 'numeric|max:10000000',
-            'variant.tax_ref' => 'nullable|string|max:255',
-            'variant.purchasable' => 'string|required',
-            'variant.unit_quantity' => 'required|numeric|min:1|max:10000000',
-            'variant.sku' => get_validation('products', 'sku', [
-                'alpha_dash',
-                'max:255',
-            ], $this->variant),
-            'variant.gtin' => get_validation('products', 'gtin', [
-                'string',
-                'max:255',
-            ], $this->variant),
-            'variant.mpn' => get_validation('products', 'mpn', [
-                'string',
-                'max:255',
-            ], $this->variant),
-            'variant.ean' => get_validation('products', 'ean', [
-                'string',
-                'max:255',
-            ], $this->variant),
-        ], $this->hasPriceValidationRules(), $this->hasImagesValidationRules());
+        return array_merge(
+            [
+                'newValues' => 'array',
+                'variant.stock' => 'required|min:0|numeric|max:10000000',
+                'variant.tax_class_id' => 'required',
+                'variant.length_value' => 'numeric|nullable',
+                'variant.length_unit' => 'string|nullable',
+                'variant.width_value' => 'numeric|nullable',
+                'variant.width_unit' => 'string|nullable',
+                'variant.height_value' => 'numeric|nullable',
+                'variant.height_unit' => 'string|nullable',
+                'variant.weight_value' => 'numeric|nullable',
+                'variant.weight_unit' => 'string|nullable',
+                'variant.volume_value' => 'numeric|nullable',
+                'variant.volume_unit' => 'string|nullable',
+                'variant.shippable' => 'boolean|nullable',
+                'variant.backorder' => 'numeric|max:10000000',
+                'variant.tax_ref' => 'nullable|string|max:255',
+                'variant.purchasable' => 'string|required',
+                'variant.unit_quantity' => 'required|numeric|min:1|max:10000000',
+                'variant.sku' => get_validation('products', 'sku', [
+                    'alpha_dash',
+                    'max:255',
+                ], $this->variant),
+                'variant.gtin' => get_validation('products', 'gtin', [
+                    'string',
+                    'max:255',
+                ], $this->variant),
+                'variant.mpn' => get_validation('products', 'mpn', [
+                    'string',
+                    'max:255',
+                ], $this->variant),
+                'variant.ean' => get_validation('products', 'ean', [
+                    'string',
+                    'max:255',
+                ], $this->variant),
+            ],
+            $this->hasPriceValidationRules(),
+            $this->hasImagesValidationRules(),
+            $this->getExtendedValidationRules([
+                'variant' => $this->variant,
+            ]),
+        );
     }
 
     /**
@@ -249,9 +260,15 @@ class VariantShow extends Component
                         ->substr(0, 128)
                         ->append('.', $file->getClientOriginalExtension());
 
-                    $media = $owner->addMedia($file->getRealPath())
-                        ->usingFileName($filename)
-                        ->toMediaCollection('images');
+                    if (FileUploadConfiguration::isUsingS3()) {
+                        $media = $owner->addMediaFromDisk($file->getRealPath())
+                            ->usingFileName($filename)
+                            ->toMediaCollection('images');
+                    } else {
+                        $media = $owner->addMedia($file->getRealPath())
+                            ->usingFileName($filename)
+                            ->toMediaCollection('images');
+                    }
 
                     activity()
                         ->performedOn($this->variant)

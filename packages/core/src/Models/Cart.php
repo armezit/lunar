@@ -22,6 +22,7 @@ use Lunar\Base\Purchasable;
 use Lunar\Base\Traits\CachesProperties;
 use Lunar\Base\Traits\HasMacros;
 use Lunar\Base\Traits\LogsActivity;
+use Lunar\Base\ValueObjects\Cart\DiscountBreakdown;
 use Lunar\Base\ValueObjects\Cart\FreeItem;
 use Lunar\Base\ValueObjects\Cart\Promotion;
 use Lunar\Base\ValueObjects\Cart\TaxBreakdown;
@@ -33,6 +34,18 @@ use Lunar\Facades\ShippingManifest;
 use Lunar\Pipelines\Cart\Calculate;
 use Lunar\Validation\Cart\ValidateCartForOrderCreation;
 
+/**
+ * @property int $id
+ * @property ?int $user_id
+ * @property ?int $merged_id
+ * @property int $currency_id
+ * @property int $channel_id
+ * @property ?int $order_id
+ * @property ?string $coupon_code
+ * @property ?\Illuminate\Support\Carbon $completed_at
+ * @property ?\Illuminate\Support\Carbon $created_at
+ * @property ?\Illuminate\Support\Carbon $updated_at
+ */
 class Cart extends BaseModel
 {
     use HasFactory;
@@ -49,8 +62,9 @@ class Cart extends BaseModel
         'subTotal',
         'shippingTotal',
         'taxTotal',
-        'cartDiscountAmount',
+        'discounts',
         'discountTotal',
+        'discountBreakdown',
         'total',
         'taxBreakdown',
         'promotions',
@@ -64,6 +78,12 @@ class Cart extends BaseModel
      * @var null|Price
      */
     public ?Price $subTotal = null;
+
+    /**
+     * The cart sub total.
+     * Sum of cart line amounts, before tax, shipping minus discount totals.
+     */
+    public ?Price $subTotalDiscounted = null;
 
     /**
      * The shipping total for the cart.
@@ -81,20 +101,19 @@ class Cart extends BaseModel
     public ?Price $taxTotal = null;
 
     /**
-     * The cart discount amount.
-     * Cart-level discount (ie. not cart-line discounts).
-     *
-     * @var null|Price
-     */
-    public ?Price $cartDiscountAmount = null;
-
-    /**
      * The discount total.
      * Sum of all cart line discounts and cart-level discounts.
      *
      * @var null|Price
      */
     public ?Price $discountTotal = null;
+
+    /**
+     * All the discount breakdowns for the cart.
+     *
+     * @var null|Collection<DiscountBreakdown>
+     */
+    public ?Collection $discountBreakdown = null;
 
     /**
      * The cart total.
@@ -303,7 +322,7 @@ class Cart extends BaseModel
                 $this->add(
                     purchasable: $line['purchasable'],
                     quantity: $line['quantity'],
-                    meta: $line['meta'] ?? null,
+                    meta: (array) $line['meta'] ?? null,
                     refresh: false
                 );
             });
@@ -419,7 +438,7 @@ class Cart extends BaseModel
         foreach (config('lunar.cart.validators.add_address', []) as $action) {
             app($action)->using(
                 cart: $this,
-                address: $type,
+                address: $address,
                 type: $type,
             )->validate();
         }
@@ -519,7 +538,7 @@ class Cart extends BaseModel
         return app(
             config('lunar.cart.actions.order_create', CreateOrder::class)
         )->execute($this->refresh()->calculate())
-            ->then(fn () => $this->refresh()->order);
+            ->then(fn () => $this->order->refresh());
     }
 
     /**

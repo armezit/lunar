@@ -67,12 +67,12 @@ class UpdateTieredPricing
         $currency = Currency::find($currencyId);
 
         $priceModel->fill([
-            'price' => (int) ($price * $currency->factor),
+            'price' => (int) bcmul($price, $currency->factor),
             'currency_id' => $currencyId,
             'customer_group_id' => $groupId,
             'tier' => $tier,
             'priceable_id' => $owner->id,
-            'priceable_type' => get_class($owner),
+            'priceable_type' => $owner->getMorphClass(),
         ]);
 
         $priceModel->save();

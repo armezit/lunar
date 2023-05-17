@@ -20,7 +20,7 @@ abstract class AbstractDiscountType extends Component
     protected $listeners = [
         'parentComponentErrorBag',
         'discount.saved' => 'save',
-        'product-search.selected' => 'selectProducts',
+        'productSearch.selected' => 'selectProducts',
     ];
 
     public function getValidationMessages()
@@ -28,7 +28,7 @@ abstract class AbstractDiscountType extends Component
         return [];
     }
 
-    public function save()
+    public function save($discountId)
     {
         // ..
     }
