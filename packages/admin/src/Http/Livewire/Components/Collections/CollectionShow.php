@@ -34,8 +34,6 @@ class CollectionShow extends Component
 
     /**
      * The collection we are currently editing.
-     *
-     * @var \Lunar\Models\Collection
      */
     public Collection $collection;
 
@@ -48,15 +46,11 @@ class CollectionShow extends Component
 
     /**
      * The products attached to the collection.
-     *
-     * @var \Illuminate\Support\Collection
      */
     public \Illuminate\Support\Collection $products;
 
     /**
      * Whether products have been loaded.
-     *
-     * @var bool
      */
     public bool $productsLoaded = false;
 
@@ -231,7 +225,6 @@ class CollectionShow extends Component
     /**
      * Sort the products.
      *
-     * @param  array  $payload
      * @return void
      */
     public function sortProducts(array $payload)
@@ -394,7 +387,6 @@ class CollectionShow extends Component
     /**
      * Map products ready for display/sorting.
      *
-     * @param  \Illuminate\Support\Collection  $products
      * @return \Illuminate\Support\Collection
      */
     protected function mapProducts(\Illuminate\Support\Collection $products)
@@ -423,7 +415,6 @@ class CollectionShow extends Component
     /**
      * Map a product into the array.
      *
-     * @param  Product  $product
      * @param  bool  $pendingSave
      * @return array
      */

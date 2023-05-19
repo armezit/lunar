@@ -13,8 +13,6 @@ abstract class AbstractDiscountType implements DiscountTypeInterface
 {
     /**
      * The instance of the discount.
-     *
-     * @var Discount
      */
     public Discount $discount;
 
@@ -22,7 +20,6 @@ abstract class AbstractDiscountType implements DiscountTypeInterface
      * Set the data for the discount to user.
      *
      * @param  array  $data
-     * @return self
      */
     public function with(Discount $discount): self
     {
@@ -33,8 +30,6 @@ abstract class AbstractDiscountType implements DiscountTypeInterface
 
     /**
      * Mark a discount as used
-     *
-     * @return self
      */
     public function markAsUsed(Cart $cart): self
     {
@@ -50,7 +45,6 @@ abstract class AbstractDiscountType implements DiscountTypeInterface
     /**
      * Return the eligible lines for the discount.
      *
-     * @param  Cart  $cart
      * @return Illuminate\Support\Collection
      */
     protected function getEligibleLines(Cart $cart): Collection
@@ -60,9 +54,6 @@ abstract class AbstractDiscountType implements DiscountTypeInterface
 
     /**
      * Check if discount's conditions met.
-     *
-     * @param  Cart  $cart
-     * @return bool
      */
     protected function checkDiscountConditions(Cart $cart): bool
     {
@@ -97,6 +88,9 @@ abstract class AbstractDiscountType implements DiscountTypeInterface
      */
     protected function addDiscountBreakdown(Cart $cart, DiscountBreakdown $breakdown)
     {
+        if (! $cart->discountBreakdown) {
+            $cart->discountBreakdown = collect();
+        }
         $cart->discountBreakdown->push($breakdown);
 
         return $this;

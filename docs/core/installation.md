@@ -2,8 +2,8 @@
 
 ## Server Requirements
 
-- PHP ^8.0
-- Laravel 8|9
+- PHP ^8.1
+- Laravel 9|10
 - MySQL 5.7+ / PostgreSQL 9.2+
 - exif PHP extension (on most systems it will be installed by default)
 - intl PHP extension (on most systems it will be installed by default)

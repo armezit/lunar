@@ -9,7 +9,6 @@ class CurrencyObserver
     /**
      * Handle the Currency "created" event.
      *
-     * @param Currency $currency
      * @return void
      */
     public function created(Currency $currency)
@@ -20,7 +19,6 @@ class CurrencyObserver
     /**
      * Handle the Currency "updated" event.
      *
-     * @param Currency $currency
      * @return void
      */
     public function updated(Currency $currency)
@@ -29,20 +27,8 @@ class CurrencyObserver
     }
 
     /**
-     * Handle the Currency "saved" event.
-     *
-     * @param Currency $currency
-     * @return void
-     */
-    public function saved(Currency $currency)
-    {
-        $this->triggerAutomaticPriceConversion($currency);
-    }
-
-    /**
      * Handle the Currency "deleted" event.
      *
-     * @param Currency $currency
      * @return void
      */
     public function deleted(Currency $currency)
@@ -53,7 +39,6 @@ class CurrencyObserver
     /**
      * Handle the Currency "forceDeleted" event.
      *
-     * @param Currency $currency
      * @return void
      */
     public function forceDeleted(Currency $currency)
@@ -64,8 +49,7 @@ class CurrencyObserver
     /**
      * Ensures that only one default currency exists.
      *
-     * @param Currency $savedCurrency The currency that was just saved.
-     * @return void
+     * @param  \Lunar\Models\Currency  $savedCurrency  The currency that was just saved.
      */
     protected function ensureOnlyOneDefault(Currency $savedCurrency): void
     {
@@ -78,29 +62,5 @@ class CurrencyObserver
                 $currency->saveQuietly();
             }
         }
-    }
-
-    /**
-     * Trigger automatic price conversion job
-     *
-     * @param Currency $savedCurrency The currency that was just saved.
-     * @return void
-     */
-    protected function triggerAutomaticPriceConversion(Currency $savedCurrency): void
-    {
-        $autoConversion = config('lunar.pricing.auto_conversion');
-
-        if ($autoConversion['enabled'] !== true) {
-            return;
-        }
-
-        // we only interested in change of non-default currency exchange rate
-        if ($savedCurrency->default || !$savedCurrency->wasChanged('exchange_rate')) {
-            return;
-        }
-
-        $autoConversion['currency_update_job']::dispatch($savedCurrency)
-            ->onConnection($autoConversion['connection'])
-            ->onQueue($autoConversion['queue']);
     }
 }

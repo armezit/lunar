@@ -695,7 +695,7 @@ class BuyXGetYTest extends TestCase
             $this->assertEquals($line['expected_subtotal'], $discountedLine->subTotalDiscounted->value);
         }
     }
-    
+
     /**
      * @test
      *
@@ -762,7 +762,7 @@ class BuyXGetYTest extends TestCase
             'priceable_type' => get_class($purchasableB),
             'priceable_id' => $purchasableB->id,
         ]);
-        
+
         Price::factory()->create([
             'price' => 200, // £2
             'tier' => 1,
@@ -790,7 +790,7 @@ class BuyXGetYTest extends TestCase
             'purchasable_id' => $purchasableB->id,
             'quantity' => 1,
         ]);
-        
+
         $cart->lines()->create([
             'purchasable_type' => get_class($purchasableC),
             'purchasable_id' => $purchasableC->id,
@@ -829,12 +829,12 @@ class BuyXGetYTest extends TestCase
             'purchasable_type' => Product::class,
             'purchasable_id' => $productA->id,
         ]);
-        
+
         $discountA->purchasableConditions()->create([
             'purchasable_type' => Product::class,
             'purchasable_id' => $productB->id,
         ]);
-        
+
         $discountA->purchasableConditions()->create([
             'purchasable_type' => Product::class,
             'purchasable_id' => $productC->id,
@@ -855,7 +855,7 @@ class BuyXGetYTest extends TestCase
         $lineB = $cart->lines->first(function ($line) use ($purchasableB) {
             return $line->purchasable_id == $purchasableB->id;
         });
-        
+
         $lineC = $cart->lines->first(function ($line) use ($purchasableC) {
             return $line->purchasable_id == $purchasableC->id;
         });
@@ -865,7 +865,7 @@ class BuyXGetYTest extends TestCase
 
         $this->assertEquals(500, $lineB->subTotal->value);
         $this->assertEquals(0, $lineB->discountTotal->value);
-        
+
         $this->assertEquals(200, $lineC->subTotal->value);
         $this->assertEquals(0, $lineC->subTotalDiscounted->value);
         $this->assertEquals(200, $lineC->discountTotal->value);
@@ -876,4 +876,5 @@ class BuyXGetYTest extends TestCase
         $this->assertCount(1, $cart->discountBreakdown);
         $this->assertCount(3, $cart->discountBreakdown->first()->lines);
     }
+
 }

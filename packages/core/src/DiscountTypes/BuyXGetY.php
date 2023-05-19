@@ -14,8 +14,6 @@ class BuyXGetY extends AbstractDiscountType
 {
     /**
      * Return the name of the discount.
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -122,6 +120,7 @@ class BuyXGetY extends AbstractDiscountType
             ));
 
             $conditionQtyToAllocate = $qtyToAllocate * ($minQty - $rewardQty);
+
             $conditions->each(function ($conditionLine) use ($affectedLines, &$conditionQtyToAllocate) {
                 if (! $conditionQtyToAllocate) {
                     return;

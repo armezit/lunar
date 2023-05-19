@@ -320,6 +320,12 @@ $taxClass = TaxClass::where(...)->first();
 $currency = Currency::where(...)->first();
 ```
 
+You can also specify a status to limit results to using the provided scope.
+
+```php
+Product::status('published')->get();
+```
+
 Then we need to create our base option and it's values.
 
 ```php
@@ -567,6 +573,14 @@ $pricing->tiers;
  */
 $pricing->customerGroupPrices;
 ```
+
+Sometimes you might want to simply get all prices a product has from the variants, instead of loading up all a products variants fetching the prices that way, you can use the `prices` relationship on the product.
+
+```php
+$product->prices
+```
+
+This will return a collection of `Price` models.
 
 ## Full Example
 

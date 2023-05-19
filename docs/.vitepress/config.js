@@ -47,7 +47,7 @@ export default defineConfig({
         ]
       },
       {
-        text: '0.2',
+        text: '0.3',
         items: [
           { text: 'Changelog', link: '/core/upgrading' },
           { text: 'Contributing', link: '/core/contributing' },
@@ -68,6 +68,7 @@ export default defineConfig({
             { text: 'Installation', link: '/core/installation' },
             { text: 'Starter Kits', link: '/core/starter-kits' },
             { text: 'Configuration', link: '/core/configuration' },
+            { text: 'Initial Set-Up', link: '/core/set-up' },
             { text: 'Upgrade Guide', link: '/core/upgrading' },
             { text: 'Security', link: '/core/securing-your-site' },
             { text: 'Contributing', link: '/core/contributing' }
@@ -96,6 +97,13 @@ export default defineConfig({
             { text: 'Tags', link: '/core/reference/tags' },
             { text: 'Taxation', link: '/core/reference/taxation' },
             { text: 'URLs', link: '/core/reference/urls' }
+          ]
+        },
+        {
+          text: 'Storefront',
+          collapsed: false,
+          items: [
+            { text: 'Storefront Session', link: '/core/storefront-utils/storefront-session' },
           ]
         },
         {

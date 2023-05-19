@@ -28,8 +28,6 @@ abstract class AbstractDiscount extends Component
 
     /**
      * The instance of the discount.
-     *
-     * @var Discount
      */
     public Discount $discount;
 
@@ -56,22 +54,16 @@ abstract class AbstractDiscount extends Component
 
     /**
      * The selected conditions
-     *
-     * @var array
      */
     public array $selectedConditions = [];
 
     /**
      * The selected rewards.
-     *
-     * @var array
      */
     public array $selectedRewards = [];
 
     /**
      * The current currency for editing
-     *
-     * @var Currency
      */
     public Currency $currency;
 
@@ -191,7 +183,6 @@ abstract class AbstractDiscount extends Component
     /**
      * Sync the discount data with what's provided.
      *
-     * @param  array  $data
      * @return void
      */
     public function syncDiscountData(array $data)
@@ -205,7 +196,6 @@ abstract class AbstractDiscount extends Component
     /**
      * Select brands given an array of IDs
      *
-     * @param  array  $ids
      * @return void
      */
     public function selectBrands(array $ids)
@@ -220,7 +210,6 @@ abstract class AbstractDiscount extends Component
     /**
      * Select collections given an array of IDs
      *
-     * @param  array  $ids
      * @return void
      */
     public function selectCollections(array $ids)
@@ -235,7 +224,6 @@ abstract class AbstractDiscount extends Component
     /**
      * Select products given an array of IDs
      *
-     * @param  array  $ids
      * @return void
      */
     public function selectProducts(array $ids)

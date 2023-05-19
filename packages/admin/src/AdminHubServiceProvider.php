@@ -37,6 +37,7 @@ use Lunar\Hub\Http\Livewire\Components\CurrentStaffName;
 use Lunar\Hub\Http\Livewire\Components\Customers\CustomerShow;
 use Lunar\Hub\Http\Livewire\Components\Customers\CustomersIndex;
 use Lunar\Hub\Http\Livewire\Components\Customers\CustomersTable;
+use Lunar\Hub\Http\Livewire\Components\Dashboard\SalesPerformance;
 use Lunar\Hub\Http\Livewire\Components\Discounts\DiscountCreate;
 use Lunar\Hub\Http\Livewire\Components\Discounts\DiscountShow;
 use Lunar\Hub\Http\Livewire\Components\Discounts\DiscountsIndex;
@@ -123,6 +124,7 @@ use Lunar\Hub\Menu\OrderActionsMenu;
 use Lunar\Hub\Menu\SettingsMenu;
 use Lunar\Hub\Menu\SidebarMenu;
 use Lunar\Hub\Menu\SlotRegistry;
+use Lunar\Hub\Models\Staff;
 use Lunar\Hub\Tables\Builders\CustomersTableBuilder;
 use Lunar\Hub\Tables\Builders\OrdersTableBuilder;
 use Lunar\Hub\Tables\Builders\ProductsTableBuilder;
@@ -200,12 +202,6 @@ class AdminHubServiceProvider extends ServiceProvider
 
         Config::set('livewire-tables.translate_namespace', 'adminhub');
 
-        Auth::resolved(function ($auth) {
-            $auth->extend('lunarhub', function ($app, $name, array $config) {
-                return $app->make(\Lunar\Hub\Auth\HubGuard::class);
-            });
-        });
-
         $this->registerLivewireComponents();
         $this->registerAuthGuard();
         $this->registerPermissionManifest();
@@ -233,7 +229,7 @@ class AdminHubServiceProvider extends ServiceProvider
             ], 'lunar.hub.views');
 
             $this->publishes([
-                __DIR__.'/../resources/lang' => resource_path('lang/vendor/adminhub'),
+                __DIR__ . '/../resources/lang' => lang_path('vendor/adminhub'),
             ], 'lunar.hub.translations');
 
             $this->commands([
@@ -275,6 +271,7 @@ class AdminHubServiceProvider extends ServiceProvider
         $this->registerCustomerComponents();
         $this->registerFieldtypeComponents();
         $this->registerDiscountComponents();
+        $this->registerDashboardComponents();
 
         // Blade Components
         Blade::componentNamespace('Lunar\\Hub\\Views\\Components', 'hub');
@@ -298,6 +295,11 @@ class AdminHubServiceProvider extends ServiceProvider
         Livewire::component('hub.components.current-staff-name', CurrentStaffName::class);
 
         Livewire::component('hub.components.tags', Tags::class);
+    }
+
+    protected function registerDashboardComponents()
+    {
+        Livewire::component('hub.components.dashboard.sales-performance', SalesPerformance::class);
     }
 
     /**
@@ -510,8 +512,14 @@ class AdminHubServiceProvider extends ServiceProvider
      */
     protected function registerAuthGuard()
     {
+        $this->app['config']->set('auth.providers.staff', [
+            'driver' => 'eloquent',
+            'model' => Staff::class,
+        ]);
+
         $this->app['config']->set('auth.guards.staff', [
-            'driver' => 'lunarhub',
+            'driver' => 'session',
+            'provider' => 'staff',
         ]);
     }
 
