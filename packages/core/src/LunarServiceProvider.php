@@ -184,11 +184,6 @@ class LunarServiceProvider extends ServiceProvider
     {
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
 
-        Relation::morphMap([
-            'product_type' => Lunar\Models\ProductType::class,
-            //'order' => Lunar\Models\Order::class,
-        ]);
-
         $this->registerObservers();
         $this->registerBlueprintMacros();
         $this->registerStateListeners();
@@ -298,12 +293,14 @@ class LunarServiceProvider extends ServiceProvider
     protected function registerBlueprintMacros(): void
     {
         Blueprint::macro('scheduling', function () {
+            /** @var Blueprint $this */
             $this->boolean('enabled')->default(false)->index();
             $this->timestamp('starts_at')->nullable()->index();
             $this->timestamp('ends_at')->nullable()->index();
         });
 
         Blueprint::macro('dimensions', function () {
+            /** @var Blueprint $this */
             $columns = ['length', 'width', 'height', 'weight', 'volume'];
             foreach ($columns as $column) {
                 $this->decimal("{$column}_value", 10, 4)->default(0)->nullable()->index();
@@ -312,6 +309,7 @@ class LunarServiceProvider extends ServiceProvider
         });
 
         Blueprint::macro('userForeignKey', function ($field_name = 'user_id', $nullable = false) {
+            /** @var Blueprint $this */
             $userModel = config('auth.providers.users.model');
 
             $type = config('lunar.database.users_id_type', 'bigint');

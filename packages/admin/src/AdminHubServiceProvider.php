@@ -123,7 +123,6 @@ use Lunar\Hub\Menu\MenuRegistry;
 use Lunar\Hub\Menu\OrderActionsMenu;
 use Lunar\Hub\Menu\SettingsMenu;
 use Lunar\Hub\Menu\SidebarMenu;
-use Lunar\Hub\Menu\SlotRegistry;
 use Lunar\Hub\Models\Staff;
 use Lunar\Hub\Tables\Builders\CustomersTableBuilder;
 use Lunar\Hub\Tables\Builders\OrdersTableBuilder;
@@ -155,10 +154,6 @@ class AdminHubServiceProvider extends ServiceProvider
 
         $this->app->singleton(MenuRegistry::class, function () {
             return new MenuRegistry();
-        });
-
-        $this->app->singleton(SlotRegistry::class, function () {
-            return new SlotRegistry();
         });
 
         $this->app->singleton(DiscountTypesInterface::class, function () {
