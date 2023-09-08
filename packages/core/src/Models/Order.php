@@ -2,10 +2,12 @@
 
 namespace Lunar\Models;
 
+use Illuminate\Database\Eloquent\Casts\AsArrayObject;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Lunar\Base\BaseModel;
 use Lunar\Base\Casts\DiscountBreakdown;
 use Lunar\Base\Casts\Price;
+use Lunar\Base\Casts\ShippingBreakdown;
 use Lunar\Base\Casts\TaxBreakdown;
 use Lunar\Base\Traits\HasMacros;
 use Lunar\Base\Traits\HasTags;
@@ -25,6 +27,7 @@ use Lunar\Database\Factories\OrderFactory;
  * @property int $sub_total
  * @property int $discount_total
  * @property array $discount_breakdown
+ * @property array $shipping_breakdown
  * @property array $tax_breakdown
  * @property int $tax_total
  * @property int $total
@@ -74,11 +77,12 @@ class Order extends BaseModel
      */
     protected $casts = [
         'tax_breakdown' => TaxBreakdown::class,
-        'meta' => 'object',
+        'meta' => AsArrayObject::class,
         'placed_at' => 'datetime',
         'sub_total' => Price::class,
         'discount_total' => Price::class,
         'discount_breakdown' => DiscountBreakdown::class,
+        'shipping_breakdown' => ShippingBreakdown::class,
         'tax_total' => Price::class,
         'total' => Price::class,
         'shipping_total' => Price::class,
@@ -128,6 +132,16 @@ class Order extends BaseModel
     public function channel()
     {
         return $this->belongsTo(Channel::class);
+    }
+
+    /**
+     * Return the cart relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function cart()
+    {
+        return $this->belongsTo(Cart::class);
     }
 
     /**
@@ -337,5 +351,21 @@ class Order extends BaseModel
         $data['tags'] = $this->tags->pluck('value')->toArray();
 
         return $data;
+    }
+
+    /**
+     * Determines if this is a draft order.
+     */
+    public function isDraft(): bool
+    {
+        return ! $this->isPlaced();
+    }
+
+    /**
+     * Determines if this is a placed order.
+     */
+    public function isPlaced(): bool
+    {
+        return ! blank($this->placed_at);
     }
 }

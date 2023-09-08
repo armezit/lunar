@@ -34,6 +34,11 @@ abstract class AbstractPayment implements PaymentTypeInterface
     protected array $data = [];
 
     /**
+     * Data storage.
+     */
+    protected array $data = [];
+
+    /**
      * {@inheritDoc}
      */
     public function cart(Cart $cart): self

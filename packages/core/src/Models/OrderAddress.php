@@ -2,6 +2,7 @@
 
 namespace Lunar\Models;
 
+use Illuminate\Database\Eloquent\Casts\AsArrayObject;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Lunar\Base\Addressable;
 use Lunar\Base\BaseModel;
@@ -55,6 +56,7 @@ class OrderAddress extends BaseModel implements Addressable
      * @var array
      */
     protected $fillable = [
+        'order_id',
         'country_id',
         'title',
         'first_name',
@@ -79,7 +81,7 @@ class OrderAddress extends BaseModel implements Addressable
      * @var array
      */
     protected $casts = [
-        'meta' => 'object',
+        'meta' => AsArrayObject::class,
     ];
 
     /**

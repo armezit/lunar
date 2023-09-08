@@ -3,11 +3,11 @@
 namespace Lunar\Hub\Http\Livewire\Traits;
 
 use Illuminate\Support\Collection;
+use Lunar\FieldTypes\ListField;
 use Lunar\FieldTypes\Number;
 use Lunar\FieldTypes\Text;
 use Lunar\FieldTypes\TranslatedText;
 use Lunar\Models\AttributeGroup;
-use Lunar\Models\Language;
 
 trait WithAttributes
 {
@@ -70,6 +70,11 @@ trait WithAttributes
             // We need to make sure we give livewire all the languages if we're trying to translate.
             if ($attribute->type == TranslatedText::class) {
                 $value = $this->prepareTranslatedText($value);
+            }
+
+            // No data (null) for ListField is an empty array
+            if ($attribute->type == ListField::class) {
+                $value = $value ?? [];
             }
 
             $reference = 'a_'.$attribute->id;
