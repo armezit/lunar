@@ -140,8 +140,8 @@ class DiscountManager implements DiscountManagerInterface
                 )
             )->when(
                 $cart?->coupon_code,
-                fn ($query, $value) => $query->where('coupon', '=', $value)->orWhereNull('coupon'),
-                fn ($query, $value) => $query->whereNull('coupon')
+                fn ($query, $value) => $query->where('coupon', '=', $value)->orWhere(fn ($query) => $query->whereNull('coupon')->orWhere('coupon', '')),
+                fn ($query, $value) => $query->whereNull('coupon')->orWhere('coupon', '')
             )->orderBy('priority', 'desc')
             ->orderBy('id')
             ->get();
@@ -183,7 +183,7 @@ class DiscountManager implements DiscountManagerInterface
 
     public function apply(Cart $cart): Cart
     {
-        if (! $this->discounts) {
+        if (! $this->discounts || $this->discounts?->isEmpty()) {
             $this->discounts = $this->getDiscounts($cart);
         }
 

@@ -24,11 +24,11 @@ use Lunar\Database\Factories\CurrencyFactory;
  */
 class Currency extends BaseModel
 {
-    use HasFactory;
-    use LogsActivity;
     use HasDefaultRecord;
+    use HasFactory;
     use HasMacros;
     use HasJobBatches;
+    use LogsActivity;
 
     /**
      * Define which attributes should be
