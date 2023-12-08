@@ -238,6 +238,6 @@ class JobBatch extends BaseModel
      */
     public function toBatchDTO(): \Illuminate\Bus\Batch
     {
-        return app(BatchRepository::class)->toBatch($this);
+        return app(BatchRepository::class, ['table' => 'job_batches'])->toBatch($this);
     }
 }
