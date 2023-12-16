@@ -17,9 +17,9 @@ use Lunar\Database\Factories\JobBatchFactory;
  * @property int $total_jobs
  * @property int $pending_jobs
  * @property int $failed_jobs
- * @property DateTimeInterface|null $cancelled_at
+ * @property DateTimeInterface $cancelled_at
  * @property DateTimeInterface $created_at
- * @property DateTimeInterface|null $finished_at
+ * @property DateTimeInterface $finished_at
  * @property-read string $subject_type
  * @property-read int $subject_id
  * @property-read string $causer_type
@@ -31,8 +31,8 @@ use Lunar\Database\Factories\JobBatchFactory;
  * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $causer
  * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $subject
  *
- * @method static Builder|\Lunar\Models\JobBatch causedBy(\Illuminate\Database\Eloquent\Model $causer)
- * @method static Builder|\Lunar\Models\JobBatch forSubject(\Illuminate\Database\Eloquent\Model $subject)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Lunar\Models\JobBatch causedBy(\Illuminate\Database\Eloquent\Model $causer)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Lunar\Models\JobBatch forSubject(\Illuminate\Database\Eloquent\Model $subject)
  */
 class JobBatch extends BaseModel
 {
@@ -89,7 +89,7 @@ class JobBatch extends BaseModel
     /**
      * The attributes that should be cast.
      *
-     * @var array<string, string>
+     * @var array
      */
     protected $casts = [
         'failed_jobs' => 'integer',
@@ -210,7 +210,7 @@ class JobBatch extends BaseModel
     protected function status(): AttributeCast
     {
         return (new AttributeCast(
-            get: fn () => match (true) {
+            get: fn() => match (true) {
                 $this->hasPendingJobs() => self::STATUS_PENDING,
                 $this->isFinished() && $this->isFailed() => self::STATUS_FAILED,
                 $this->isFinished() && $this->hasFailures() => self::STATUS_UNHEALTHY,
@@ -227,8 +227,8 @@ class JobBatch extends BaseModel
     protected function tags(): AttributeCast
     {
         return (new AttributeCast(
-            get: fn ($value) => $this->toBatchDTO()->options['tags'] ?? [],
-        ))->shouldCache();
+            get: fn($value) => $this->toBatchDTO()->options['tags'] ?? [],
+        ));
     }
 
     /**
@@ -238,6 +238,6 @@ class JobBatch extends BaseModel
      */
     public function toBatchDTO(): \Illuminate\Bus\Batch
     {
-        return app(BatchRepository::class, ['table' => 'job_batches'])->toBatch($this);
+        return app(BatchRepository::class, ['table' => $this->table])->toBatch($this);
     }
 }

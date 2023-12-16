@@ -55,8 +55,10 @@ class DispatchPriceConversionOnCurrencyUpdate implements ShouldQueue
                 $join->on('p1.priceable_id', '=', 'p2.priceable_id')
                     ->on('p1.priceable_type', '=', 'p2.priceable_type');
             })
-            ->where('p1.currency_id', '=', $baseCurrency->id)
-            ->where('p2.currency_id', '!=', $baseCurrency->id)
+            ->where([
+                'p1.currency_id' => $baseCurrency->id,
+                'p2.currency_id' => $this->savedCurrency->id,
+            ])
             ->select([
                 'p1.id             as base_price_id',
                 'p1.currency_id    as base_currency_id',
@@ -93,7 +95,7 @@ class DispatchPriceConversionOnCurrencyUpdate implements ShouldQueue
             function ($records) use ($batch, $baseCurrency) {
                 $batch->add(new ConvertPrices(
                     collect($records)->map(function ($record) use ($baseCurrency) {
-                        $basePrice = new \Lunar\DataTypes\Price($record->base_price, $baseCurrency);
+                        $basePrice = new \Lunar\DataTypes\Price((int)$record->base_price, $baseCurrency);
                         return [
                             'base_price' => $basePrice->decimal,
                             'quote_currency' => $this->savedCurrency,
@@ -107,7 +109,7 @@ class DispatchPriceConversionOnCurrencyUpdate implements ShouldQueue
 
         // associate the job with subject model
         JobBatch::find($batch->id)
-            ->subject()
+            ?->subject()
             ->associate($this->savedCurrency)
             ->save();
     }

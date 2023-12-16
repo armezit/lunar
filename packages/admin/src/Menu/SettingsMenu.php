@@ -126,7 +126,7 @@ final class SettingsMenu
                 ->icon('clipboard-list');
         });
 
-        $adminSection->addItem(function (MenuLink $item) {
+        $adminSection->addItem(function ($item) {
             $item->name('Background Jobs')
                 ->handle('hub.background-jobs')
                 ->route('hub.background-jobs.index')

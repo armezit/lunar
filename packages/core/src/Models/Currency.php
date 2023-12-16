@@ -26,8 +26,8 @@ class Currency extends BaseModel
 {
     use HasDefaultRecord;
     use HasFactory;
-    use HasMacros;
     use HasJobBatches;
+    use HasMacros;
     use LogsActivity;
 
     /**
