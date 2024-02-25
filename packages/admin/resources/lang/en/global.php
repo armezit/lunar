@@ -128,4 +128,5 @@ return [
     'billing_email' => 'Billing Email',
     'add_new' => 'Add new',
     'background_jobs' => 'Background Jobs',
+    'store' => 'Store',
 ];
